@@ -1,0 +1,27 @@
+version: '3.7'
+
+services:
+  users-db:
+    build:
+      context: ./services/users/app/db
+      dockerfile: Dockerfile
+    ports:
+      - 5434:5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+
+  users:
+    build:
+      context: ./services/users
+      dockerfile: Dockerfile.dev
+    command: flask run -h 0.0.0.0
+    volumes:
+      - type: bind
+        source: ./services/users
+        target: /usr/src/app
+    ports:
+      - 5000:5000
+    env_file: .env.dev
+    depends_on:
+      - users-db
