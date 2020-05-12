@@ -1,6 +1,8 @@
 __pycache__
+*.egg-info/
 .env*
 .vscode
 .pytest_cache
 *.pyc
-*.egg-info/
+venv
+node_modules

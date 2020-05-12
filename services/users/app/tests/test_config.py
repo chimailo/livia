@@ -20,6 +20,9 @@ def test_testing_config(client):
     app = create_app(config=TestingConfig)
     assert app.config["TESTING"] is True
     assert app.config["SECRET_KEY"] == "secret_key"
+    assert app.config['PRESERVE_CONTEXT_ON_EXCEPTION'] is False
+    assert app.config["SQLALCHEMY_DATABASE_URI"] == \
+        os.environ.get("DATABASE_TEST_URL")
 
 
 def test_production_config(client):

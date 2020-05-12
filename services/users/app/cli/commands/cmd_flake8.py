@@ -21,5 +21,6 @@ def cli(skip_init, path):
     if skip_init:
         flake8_flag_exclude = " --exclude __init__.py"
 
-    cmd = "flake8 {0}{1}".format(path, flake8_flag_exclude)
+    cmd = "flake8 {0}{1} --ignore E128 E402 f401" \
+            .format(path, flake8_flag_exclude)
     return subprocess.call(cmd, shell=True)

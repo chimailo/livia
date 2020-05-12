@@ -5,8 +5,8 @@ services:
     build:
       context: ./services/users/app/db
       dockerfile: Dockerfile
-    ports:
-      - 5434:5432
+    expose:
+      - 5432
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
@@ -19,9 +19,25 @@ services:
     volumes:
       - type: bind
         source: ./services/users
-        target: /usr/src/app
-    ports:
-      - 5000:5000
-    env_file: .env.dev
+        target: /usr/src/users
+    environment:
+      - APP_SETTINGS=app.config.DevelopmentConfig
+      - DATABASE=postgres
+      - FLASK_APP=app/__init__.py
+      - FLASK_ENV=development
+      - SQL_HOST=users-db
+      - SQL_PORT=5432
+    expose:
+      - 5000
     depends_on:
       - users-db
+
+  nginx:
+    build:
+      context: ./services/nginx
+      dockerfile: Dockerfile.dev
+    restart: always
+    ports:
+      - 8000:80
+    depends_on:
+      - users
