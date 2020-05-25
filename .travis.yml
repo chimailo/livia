@@ -16,8 +16,8 @@ before_script:
   - docker-compose up -d --build
 
 script:
-  - docker-compose exec users livia test
-  - docker-compose exec users livia flake8
+  - docker-compose exec users python manage.py test
+  - docker-compose exec users python manage.py flake8
 
 after_script:
   - docker-compose down

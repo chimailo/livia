@@ -1,9 +1,9 @@
 version: '3.7'
 
 services:
-  users-db:
+  db:
     build:
-      context: ./services/users/app/db
+      context: ./services/db
       dockerfile: Dockerfile
     expose:
       - 5432
@@ -11,33 +11,50 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
 
-  users:
+  app:
     build:
-      context: ./services/users
+      context: ./services/app
       dockerfile: Dockerfile.dev
-    command: flask run -h 0.0.0.0
+    command: python manage.py run -h 0.0.0.0
     volumes:
       - type: bind
-        source: ./services/users
-        target: /usr/src/users
+        source: ./services/app
+        target: /usr/src/app
     environment:
-      - APP_SETTINGS=app.config.DevelopmentConfig
+      - APP_SETTINGS=src.config.DevelopmentConfig
       - DATABASE=postgres
-      - FLASK_APP=app/__init__.py
+      - FLASK_APP=src/__init__.py
       - FLASK_ENV=development
-      - SQL_HOST=users-db
+      - SQL_HOST=db
       - SQL_PORT=5432
     expose:
       - 5000
     depends_on:
-      - users-db
+      - db
+
+  client:
+    build:
+      context: ./services/client
+      dockerfile: Dockerfile.dev
+    depends_on:
+      - app
+    environment:
+      - NODE_ENV=development
+      - REACT_APP_API_URL=${REACT_APP_API_URL}
+    ports:
+      - 3000:3000
+    stdin_open: true
+    volumes:
+      - './services/client:/usr/src/app'
+      - '/usr/src/app/node_modules'
 
   nginx:
     build:
       context: ./services/nginx
       dockerfile: Dockerfile.dev
-    restart: always
-    ports:
-      - 8000:80
     depends_on:
-      - users
+      - app
+      - client
+    ports:
+      - 80:80
+    restart: always

@@ -1,9 +1,9 @@
 version: '3.7'
 
 services:
-  users-db:
+  db:
     build:
-      context: ./services/users/app/db
+      context: ./services/db
       dockerfile: Dockerfile
     env_file: .env.db
     expose:
@@ -17,14 +17,44 @@ services:
 
   users:
     build:
-      context: ./services/users
+      context: ./services/app
       dockerfile: Dockerfile
-    command: gunicorn --bind 0.0.0.0:5000 --access-logfile - "home.app.users.__init__:create_app()"
+    command: gunicorn --bind 0.0.0.0:5000 --access-logfile - manage:src
     depends_on:
-      - users-db
-    env_file: .env
+      - db
+    environment:
+      - APP_SETTINGS=src.config.ProductionConfig
+      - DATABASE=postgres
+      - FLASK_APP=src/__init__.py
+      - FLASK_ENV=production
+      - SQL_HOST=db
+      - SQL_PORT=5432
+    expose:
+      - 5000
+
+  client:
+    build:
+      context: ./services/client
+      dockerfile: Dockerfile
+      args:
+        - NODE_ENV=production
+        - REACT_APP_API_URL=${REACT_APP_API_URL}
+    container_name: client
     ports:
-      - 5000:5000
+      - '3030:80'
+    depends_on:
+      - src
+
+  nginx:
+    build:
+      context: ./services/nginx
+      dockerfile: Dockerfile
+    ports:
+      - 80:80
+    depends_on:
+      - src
+      - client
+    restart: always
 
 volumes:
   postgres_data:

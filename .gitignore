@@ -1,8 +1,32 @@
-__pycache__
-*.egg-info/
+# client
+#============
+
+# dependencies
+node_modules
+.pnp
+.pnp.js
+
+# testing
+coverage
+
+# production
+build
+
+# misc
+.DS_Store
 .env*
-.vscode
+npm-debug.log*
+
+# app
+#===========
+
+# dependencies
+venv
+
+# testing
+.coverage
+
+# misc
+__pycache__
 .pytest_cache
 *.pyc
-venv
-node_modules
